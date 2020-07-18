@@ -1,9 +1,9 @@
 {
   "format_version": 1,
   "header": {
-    "name": "boilerplate",
-    "description": "a simple boilerplate ui",
-    "uuid": "b1930c1b-dda1-433a-83f0-948670cd198b",
+    "name": "planetary_days",
+    "description": "custom night and day lengths",
+    "uuid": "60921107-b631-4fdd-86c0-bf4581d32af3",
     "version": [
       4,
       0,
@@ -12,9 +12,9 @@
   },
   "modules": [
     {
-      "description": "a simple boilerplate ui",
+      "description": "custom night and day lengths",
       "type": "client_data",
-      "uuid": "5c985044-3578-4381-82b6-ffbea6941e3c",
+      "uuid": "abba0ede-d732-47ac-9f89-f977912d3cc5",
       "version": [
         4,
         0,
@@ -24,7 +24,7 @@
   ],
   "dependencies": [
     {
-      "uuid": "3ea9c0b0-23b8-43a7-b269-e21e6f88bf18",
+      "uuid": "ed7a5bef-fb25-4f47-a7ce-b50288e640d8",
       "version": [
         4,
         0,

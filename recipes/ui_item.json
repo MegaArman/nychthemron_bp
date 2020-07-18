@@ -2,7 +2,7 @@
   "format_version": "1.12",
   "minecraft:recipe_shaped": {
     "description": {
-    "identifier": "boilerplate:ui_item"
+    "identifier": "planetary_days:ui_item"
     },
 
 
@@ -18,7 +18,7 @@
       }
     },
     "result": {
-      "item": "boilerplate:ui_item"
+      "item": "planetary_days:ui_item"
     }
   }
 }

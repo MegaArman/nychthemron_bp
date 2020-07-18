@@ -2,7 +2,7 @@
   "format_version": "1.10",
   "minecraft:item": {
     "description": {
-      "identifier": "boilerplate:ui_item"
+      "identifier": "planetary_days:ui_item"
     },
 
     "components": {
