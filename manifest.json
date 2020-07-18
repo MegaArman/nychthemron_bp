@@ -1,0 +1,35 @@
+{
+  "format_version": 1,
+  "header": {
+    "name": "boilerplate",
+    "description": "a simple boilerplate ui",
+    "uuid": "b1930c1b-dda1-433a-83f0-948670cd198b",
+    "version": [
+      4,
+      0,
+      0
+    ]
+  },
+  "modules": [
+    {
+      "description": "a simple boilerplate ui",
+      "type": "client_data",
+      "uuid": "5c985044-3578-4381-82b6-ffbea6941e3c",
+      "version": [
+        4,
+        0,
+        0
+      ]
+    }
+  ],
+  "dependencies": [
+    {
+      "uuid": "3ea9c0b0-23b8-43a7-b269-e21e6f88bf18",
+      "version": [
+        4,
+        0,
+        0
+      ]
+    }
+  ]
+}
