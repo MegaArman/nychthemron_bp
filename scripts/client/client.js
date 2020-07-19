@@ -21,6 +21,15 @@ system.update = function()
 {
 };
 
+const print = (message) =>
+{
+	const chatEventData = system
+			.createEventData("minecraft:display_chat_event");
+	chatEventData.data.message = message;
+	system
+		.broadcastEvent("minecraft:display_chat_event", chatEventData);
+};
+
 system.entered = function (eventData)
 {
 	let loadEventData = this.createEventData("minecraft:load_ui");
@@ -49,9 +58,15 @@ system.onload = function (event)
 system.onUIMessage = function (eventdata)
 {
 	let eventData = eventdata.data;
+	print(eventData);
   if(eventData === "closepressed")
 	{
 		this.close();
+	}
+	else
+	{
+		const keyPressEvent = JSON.parse(eventData);
+		print("cycle length " + keyPressEvent.cycleLength);
 	}
 };
 
