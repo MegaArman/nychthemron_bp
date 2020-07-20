@@ -1,4 +1,6 @@
 const system = client.registerSystem(0,0);
+
+const CYCLE_CHANGE_EVENT = "client:cycleChange";
 system.initialize = function()
 {
 	const scriptLoggerConfig =
@@ -15,6 +17,9 @@ system.initialize = function()
 		(eventdata) => this.onUIMessage(eventdata));
 	this.listenForEvent("minecraft:client_entered_world",
 		(eventData) => this.entered(eventData));
+
+		// const eventDataDefaults = {narf: false};
+		system.registerEventData(CYCLE_CHANGE_EVENT, {});
 };
 
 system.update = function()
@@ -55,18 +60,24 @@ system.onload = function (event)
 		this.broadcastEvent("minecraft:load_ui", ui);
 };
 
-system.onUIMessage = function (eventdata)
+system.onUIMessage = function (eventData)
 {
-	let eventData = eventdata.data;
-	print(eventData);
-  if(eventData === "closepressed")
+	const eventDataStr = eventData.data;
+
+	// print(eventData);
+  if(eventDataStr === "closepressed")
 	{
 		this.close();
 	}
 	else
 	{
-		const keyPressEvent = JSON.parse(eventData);
-		print("cycle length " + keyPressEvent.cycleLength);
+		// let pinkyEventData = clientSystem.createEventData("example:pinky");
+		// pinkyEventData.data.narf = true;
+		//
+		// clientSystem.broadcastEvent("example:pinky", pinkyEventData);
+
+		// print("gonna broadcast to server" + eventData);
+		system.broadcastEvent(CYCLE_CHANGE_EVENT, eventData);
 	}
 };
 

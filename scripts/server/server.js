@@ -1,6 +1,7 @@
 const system = server.registerSystem(0, 0);
 let command = "minecraft:execute_command";
 
+const CYCLE_CHANGE_EVENT = "client:cycleChange";
 system.initialize = function ()
 {
 	this.registerEventData("Main:loadui", {});
@@ -8,6 +9,11 @@ system.initialize = function ()
 	this
 	.listenForEvent("minecraft:block_interacted_with",
 		(eventData) => this.onUsed(eventData));
+	system
+		.listenForEvent(CYCLE_CHANGE_EVENT, eventData =>
+			{
+				print("eventData received in server" + eventData.data);
+			});
 };
 
 system.runcommand = function (event)
@@ -63,7 +69,7 @@ system.update = function()
 	// print("tick");
 	if (isDay && (tickCount % dayLength === 0))
 	{
-		print("night noww");
+		// print("night noww");
 		this.executeCommand("/time set night", () =>
 		{
 		});
@@ -71,7 +77,7 @@ system.update = function()
 	}
 	else if (!isDay && (tickCount % nightLength === 0))
 	{
-		print("day now");
+		// print("day now");
 		this.executeCommand("/time set day", () =>
 		{
 		});
