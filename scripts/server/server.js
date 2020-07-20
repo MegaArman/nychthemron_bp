@@ -1,6 +1,11 @@
 const system = server.registerSystem(0, 0);
 let command = "minecraft:execute_command";
 
+const ticksPerSec = 20;
+let dayLength = 40;
+let nightLength = 100;
+let tickCount = 0;
+let isDay = true;
 const CYCLE_CHANGE_EVENT = "client:cycleChange";
 system.initialize = function ()
 {
@@ -12,6 +17,16 @@ system.initialize = function ()
 	system
 		.listenForEvent(CYCLE_CHANGE_EVENT, eventData =>
 			{
+				const msg = JSON.parse(eventData.data);
+				const cycleLengthSec = msg.cycleLength * ticksPerSec;
+				if (msg.cycleID === "dayLength")
+				{
+					dayLength = cycleLengthSec;
+				}
+				else if (msg.cycleID === "nightLength")
+				{
+					nightLength = cycleLengthSec;
+				}
 				print("eventData received in server" + eventData.data);
 			});
 };
@@ -48,11 +63,6 @@ system.command = function(command)
 	this.broadcastEvent("minecraft:execute_command", data);
 };
 
-const ticksPerSec = 20;
-let dayLength = 40;
-let nightLength = 100;
-let tickCount = 0;
-let isDay = true;
 
 const print = (message) =>
 {
