@@ -41,3 +41,40 @@ system.command = function(command)
 	data.data.command = command;
 	this.broadcastEvent("minecraft:execute_command", data);
 };
+
+const ticksPerSec = 20;
+let dayLength = 40;
+let nightLength = 100;
+let tickCount = 0;
+let isDay = true;
+
+const print = (message) =>
+{
+	const chatEventData = system
+			.createEventData("minecraft:display_chat_event");
+	chatEventData.data.message = message;
+	system
+		.broadcastEvent("minecraft:display_chat_event", chatEventData);
+};
+
+system.update = function()
+{
+	tickCount++;
+	// print("tick");
+	if (isDay && (tickCount % dayLength === 0))
+	{
+		print("night noww");
+		this.executeCommand("/time set night", () =>
+		{
+		});
+		isDay = false;
+	}
+	else if (!isDay && (tickCount % nightLength === 0))
+	{
+		print("day now");
+		this.executeCommand("/time set day", () =>
+		{
+		});
+		isDay = true;
+	}
+};
