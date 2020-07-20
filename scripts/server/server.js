@@ -2,8 +2,8 @@ const system = server.registerSystem(0, 0);
 let command = "minecraft:execute_command";
 
 const ticksPerSec = 20;
-let dayLength = 40;
-let nightLength = 100;
+let dayLength = 600;
+let nightLength = 600;
 let tickCount = 0;
 let isDay = true;
 const CYCLE_CHANGE_EVENT = "client:cycleChange";
