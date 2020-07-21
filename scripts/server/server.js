@@ -1,12 +1,28 @@
 const system = server.registerSystem(0, 0);
 let command = "minecraft:execute_command";
 
-const ticksPerSec = 20;
-let dayLength = 600;
-let nightLength = 600;
-let tickCount = 0;
-let isDay = true;
 const CYCLE_CHANGE_EVENT = "client:cycleChange";
+const ticksPerSec = 20;
+const cyclesList =
+	[
+		{"name": "sunrise", "duration": 50},
+		{"name": "day", "duration": 600},
+		{"name": "sunset", "duration": 50},
+		{"name": "night", "duration": 500}
+	];
+
+let tickCount = 0;
+let currentCycleIndex = 0;
+
+const print = (message) =>
+{
+	const chatEventData = system
+			.createEventData("minecraft:display_chat_event");
+	chatEventData.data.message = message;
+	system
+		.broadcastEvent("minecraft:display_chat_event", chatEventData);
+};
+
 system.initialize = function ()
 {
 	this.registerEventData("Main:loadui", {});
@@ -17,17 +33,13 @@ system.initialize = function ()
 	system
 		.listenForEvent(CYCLE_CHANGE_EVENT, eventData =>
 			{
+				// print("eventData received in server" + eventData.data);
+
 				const msg = JSON.parse(eventData.data);
-				const cycleLengthSec = msg.cycleLength * ticksPerSec;
-				if (msg.cycleID === "dayLength")
-				{
-					dayLength = cycleLengthSec;
-				}
-				else if (msg.cycleID === "nightLength")
-				{
-					nightLength = cycleLengthSec;
-				}
-				print("eventData received in server" + eventData.data);
+				const cycleLengthSec = Number(msg.cycleLength) * ticksPerSec;
+				const cycleToChangeIndex =
+					cyclesList.findIndex((cycle) => cycle.name === msg.cycleID);
+				cyclesList[cycleToChangeIndex].duration = cycleLengthSec;
 			});
 };
 
@@ -64,33 +76,21 @@ system.command = function(command)
 };
 
 
-const print = (message) =>
-{
-	const chatEventData = system
-			.createEventData("minecraft:display_chat_event");
-	chatEventData.data.message = message;
-	system
-		.broadcastEvent("minecraft:display_chat_event", chatEventData);
-};
-
 system.update = function()
 {
 	tickCount++;
-	// print("tick");
-	if (isDay && (tickCount % dayLength === 0))
+
+	if (tickCount % cyclesList[currentCycleIndex].duration === 0)
 	{
-		// print("night noww");
-		this.executeCommand("/time set night", () =>
-		{
-		});
-		isDay = false;
-	}
-	else if (!isDay && (tickCount % nightLength === 0))
-	{
-		// print("day now");
-		this.executeCommand("/time set day", () =>
-		{
-		});
-		isDay = true;
+			currentCycleIndex++;
+			if (currentCycleIndex === cyclesList.length)
+			{
+				currentCycleIndex = 0;
+			}
+			const newCycleName = cyclesList[currentCycleIndex].name;
+			this.executeCommand(`/time set ${newCycleName}`, () =>
+			{
+				// print(`/time set ${newCycleName}`);
+			});
 	}
 };
