@@ -25,22 +25,25 @@ const print = (message) =>
 
 system.initialize = function ()
 {
+	system.executeCommand("/gamerule doDaylightCycle false", () =>
+	{
+	});
+	system
+	.listenForEvent(CYCLE_CHANGE_EVENT, eventData =>
+		{
+			// print("eventData received in server" + eventData.data);
+
+			const msg = JSON.parse(eventData.data);
+			const cycleLengthSec = Number(msg.cycleLength) * ticksPerSec;
+			const cycleToChangeIndex =
+				cyclesList.findIndex((cycle) => cycle.name === msg.cycleID);
+			cyclesList[cycleToChangeIndex].duration = cycleLengthSec;
+		});
 	this.registerEventData("Main:loadui", {});
 	this.registerEventData("Main:loadmenu", {});
 	this
 	.listenForEvent("minecraft:block_interacted_with",
 		(eventData) => this.onUsed(eventData));
-	system
-		.listenForEvent(CYCLE_CHANGE_EVENT, eventData =>
-			{
-				// print("eventData received in server" + eventData.data);
-
-				const msg = JSON.parse(eventData.data);
-				const cycleLengthSec = Number(msg.cycleLength) * ticksPerSec;
-				const cycleToChangeIndex =
-					cyclesList.findIndex((cycle) => cycle.name === msg.cycleID);
-				cyclesList[cycleToChangeIndex].duration = cycleLengthSec;
-			});
 };
 
 system.runcommand = function (event)
