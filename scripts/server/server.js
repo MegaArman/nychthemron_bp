@@ -5,10 +5,10 @@ const CYCLE_CHANGE_EVENT = "client:cycleChange";
 const ticksPerSec = 20;
 const cyclesList =
 	[
-		{"name": "sunrise", "duration": 50},
-		{"name": "day", "duration": 600},
-		{"name": "sunset", "duration": 50},
-		{"name": "night", "duration": 500}
+		{"name": "sunrise", "duration": 50, "value": "sunrise"},
+		{"name": "day", "duration": 600, "value": "day"},
+		{"name": "sunset", "duration": 50, "value": 12250},
+		{"name": "night", "duration": 500, "value": 18000}
 	];
 
 let tickCount = 0;
@@ -90,8 +90,8 @@ system.update = function()
 			{
 				currentCycleIndex = 0;
 			}
-			const newCycleName = cyclesList[currentCycleIndex].name;
-			this.executeCommand(`/time set ${newCycleName}`, () =>
+			const cycleValue = cyclesList[currentCycleIndex].value;
+			this.executeCommand(`/time set ${cycleValue}`, () =>
 			{
 				// print(`/time set ${newCycleName}`);
 			});
