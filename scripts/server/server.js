@@ -88,12 +88,7 @@ const escapeRegExp = (string) =>
 
 system.save = function(saveData)
 {
-	// const hFormat = saveData.replace("[", "").replace("]", "")
-	// 	.replace(/,/g, "-");
-	// print("hFormat " + hFormat);
-
 	const escapedJSON = escapeRegExp(saveData);
-	// print("will save: " + saveData);
 	const query = system.registerQuery();
 	const entities = system.getEntitiesFromQuery(query)
 		.filter( entity =>
@@ -101,19 +96,19 @@ system.save = function(saveData)
 
 	if (entities.length === 0)
 	{
-		print("need to create it");
+		// print("need to create it");
 		const e = this.createEntity("entity", "nychthemeron:cycle_lengths");
 		entities.push(e);
 	}
 	const e = entities[0];
-	print("ents are " + JSON.stringify(e));
+	// print("ents are " + JSON.stringify(e));
 	const tags = system.getComponent(e, "minecraft:tag").data;
-	print("tags are " + JSON.stringify(tags));
+	// print("tags are " + JSON.stringify(tags));
 		system.executeCommand(
 			`/tag @e[type=nychthemeron:cycle_lengths] remove "${tags}"`,
 			(commandResultData) =>
 			{
-				print("tried to remove " + JSON.stringify(commandResultData));
+				// print("tried to remove " + JSON.stringify(commandResultData));
 			});
 
 	system.executeCommand(
@@ -133,14 +128,7 @@ system.save = function(saveData)
 
 system.update = function()
 {
-	if (tickCount === 60) //TODO MOVE TO INITIALIZE
-	{
-		// this.save("updateddd");
-	}
-
 	tickCount++;
-
-	// if (tickCount % cyclesList[currentCycleIndex].duration === 0)
 	if (tickCount % durations[currentCycleIndex] === 0)
 	{
 			currentCycleIndex++;
@@ -151,7 +139,6 @@ system.update = function()
 			const cycleValue = cyclesList[currentCycleIndex].value;
 			this.executeCommand(`/time set ${cycleValue}`, () =>
 			{
-				// print(`/time set ${newCycleName}`);
 			});
 	}
 };
