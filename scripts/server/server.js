@@ -10,7 +10,7 @@ const cyclesList =
 		{"name": "sunset", "duration": 50, "value": 12250},
 		{"name": "night", "duration": 500, "value": 18000}
 	];
-
+const durations = [50, 600, 50, 500];
 let tickCount = 0;
 let currentCycleIndex = 0;
 
@@ -34,10 +34,12 @@ system.initialize = function ()
 			// print("eventData received in server" + eventData.data);
 
 			const msg = JSON.parse(eventData.data);
-			const cycleLengthSec = Number(msg.cycleLength) * ticksPerSec;
+			const cycleLengthTicks = Number(msg.cycleLength) * ticksPerSec;
 			const cycleToChangeIndex =
 				cyclesList.findIndex((cycle) => cycle.name === msg.cycleID);
-			cyclesList[cycleToChangeIndex].duration = cycleLengthSec;
+			// cyclesList[cycleToChangeIndex].duration = cycleLengthSec;
+			durations[cycleToChangeIndex] = cycleLengthTicks;
+			this.save(JSON.stringify(durations));
 		});
 	this.registerEventData("Main:loadui", {});
 	this.registerEventData("Main:loadmenu", {});
@@ -77,48 +79,108 @@ system.command = function(command)
 	data.data.command = command;
 	this.broadcastEvent("minecraft:execute_command", data);
 };
+const escapeRegExp = (string) =>
+{
+  // return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
+	const regex = /"/gi;
+	return string.replace(regex, '\\"');
+};
 
+system.save = function(saveData)
+{
+	const hFormat = saveData.replace("[", "").replace("]", "")
+		.replace(/,/g, "-");
+	print("hFormat " + hFormat);
+	// print("will save: " + saveData);
+	const query = system.registerQuery();
+	const entities = system.getEntitiesFromQuery(query)
+		.filter( entity =>
+			entity.__identifier__ === "nychthemeron:cycle_lengths");
+
+
+	if (entities.length === 0)
+	{
+		print("need to create it");
+		const e = this.createEntity("entity", "nychthemeron:cycle_lengths");
+		entities.push(e);
+	}
+	const e = entities[0];
+	print("ents are " + JSON.stringify(e));
+	const tags = system.getComponent(e, "minecraft:tag").data;
+	print("tags are " + JSON.stringify(tags));
+		system.executeCommand(
+			`/tag @e[type=nychthemeron:cycle_lengths] remove ${tags}`,
+			(commandResultData) =>
+			{
+				print("tried to remove " + JSON.stringify(commandResultData));
+			});
+
+	system.executeCommand(
+		`/tag @e[type=nychthemeron:cycle_lengths] add ${hFormat}`,
+		() =>
+		{
+			system
+			.executeCommand("/tag @e[type=nychthemeron:cycle_lengths] list",
+			(commandResultData) =>
+			{
+				const tags =
+					commandResultData.data.statusMessage.split("tags: ").pop();
+				print("new tags " + tags);
+			});
+		});
+
+
+	// //remove the prev data
+	// system
+	// .executeCommand("/tag @e[type=nychthemeron:cycle_lengths] list",
+	// (commandResultData) =>
+	// {
+	// 	const tags =
+	// 		commandResultData.data.statusMessage.split("tags: ").pop()
+	// 		.replace(/ /g,"");
+	// 	// const cleanedTags = tags.replace(/\//, ""); //remove all slash
+	// 	// const escapedTags = escapeRegExp(cleanedTags);
+	// 	print("WANT to remove " + tags);
+	//
+	// 	system.executeCommand(
+	// 		`/tag @e[type=nychthemeron:cycle_lengths] remove ${tags}`,
+	// 		(commandResultData) =>
+	// 		{
+	// 			print("tried to remove " + JSON.stringify(commandResultData));
+	//
+	// 			//add new data
+	// 			system.executeCommand(
+	// 				`/tag @e[type=nychthemeron:cycle_lengths] add ${hFormat}`,
+	// 				() =>
+	// 				{
+	// 					// print(JSON.stringify(commandResultData));
+	// 					system
+	// 					.executeCommand("/tag @e[type=nychthemeron:cycle_lengths] list",
+	// 					(commandResultData) =>
+	// 					{
+	// 						const tags =
+	// 							commandResultData.data.statusMessage.split("tags: ").pop();
+	// 						print("new tags " + tags);
+	// 					});
+	// 				});
+	// 		});
+	// });
+
+
+
+};
 
 system.update = function()
 {
 	if (tickCount === 60) //TODO MOVE TO INITIALIZE
 	{
-		const query = system.registerQuery();
-		const entities = system.getEntitiesFromQuery( query )
-			.filter( entity =>
-				entity.__identifier__ === "nychthemeron:cycle_lengths");
-		if (entities.length === 0)
-		{
-			print("need to create it");
-			this.createEntity("entity", "nychthemeron:cycle_lengths");
-			system.executeCommand(
-				"/tag @e[type=nychthemeron:cycle_lengths] add ok",() =>
-				{});
-			system
-			.executeCommand("/tag @e[type=nychthemeron:cycle_lengths] list",
-			(commandResultData) =>
-			{
-				const tags =
-					commandResultData.data.statusMessage.split("tags:").pop();
-				print("resulting tags " + tags);
-			});
-		}
-		else
-		{
-			system
-			.executeCommand("/tag @e[type=nychthemeron:cycle_lengths] list",
-			(commandResultData) =>
-			{
-				const tags =
-					commandResultData.data.statusMessage.split("tags:").pop();
-				print("resulting tags " + tags);
-			});
-		}
+		// this.save("updateddd");
 	}
 
 	tickCount++;
 
-	if (tickCount % cyclesList[currentCycleIndex].duration === 0)
+	// if (tickCount % cyclesList[currentCycleIndex].duration === 0)
+	if (tickCount % durations[currentCycleIndex] === 0)
 	{
 			currentCycleIndex++;
 			if (currentCycleIndex === cyclesList.length)
