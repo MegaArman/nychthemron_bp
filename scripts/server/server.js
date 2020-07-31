@@ -81,6 +81,41 @@ system.command = function(command)
 
 system.update = function()
 {
+	if (tickCount === 60) //TODO MOVE TO INITIALIZE
+	{
+		const query = system.registerQuery();
+		const entities = system.getEntitiesFromQuery( query )
+			.filter( entity =>
+				entity.__identifier__ === "nychthemeron:cycle_lengths");
+		if (entities.length === 0)
+		{
+			print("need to create it");
+			this.createEntity("entity", "nychthemeron:cycle_lengths");
+			system.executeCommand(
+				"/tag @e[type=nychthemeron:cycle_lengths] add ok",() =>
+				{});
+			system
+			.executeCommand("/tag @e[type=nychthemeron:cycle_lengths] list",
+			(commandResultData) =>
+			{
+				const tags =
+					commandResultData.data.statusMessage.split("tags:").pop();
+				print("resulting tags " + tags);
+			});
+		}
+		else
+		{
+			system
+			.executeCommand("/tag @e[type=nychthemeron:cycle_lengths] list",
+			(commandResultData) =>
+			{
+				const tags =
+					commandResultData.data.statusMessage.split("tags:").pop();
+				print("resulting tags " + tags);
+			});
+		}
+	}
+
 	tickCount++;
 
 	if (tickCount % cyclesList[currentCycleIndex].duration === 0)
