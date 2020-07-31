@@ -2,8 +2,10 @@ const system = server.registerSystem(0, 0);
 let command = "minecraft:execute_command";
 
 const CYCLE_CHANGE_EVENT = "client:cycleChange";
+const CLIENT_ENTER_EVENT = "client:clientEnter";
+
 const ticksPerSec = 20;
-const cyclesList =
+let cyclesList =
 	[
 		{"name": "sunrise", "duration": 50, "value": "sunrise"},
 		{"name": "day", "duration": 600, "value": "day"},
@@ -36,7 +38,7 @@ system.initialize = function ()
 	{
 	});
 	system
-	.listenForEvent(CYCLE_CHANGE_EVENT, eventData =>
+	.listenForEvent(CYCLE_CHANGE_EVENT, (eventData) =>
 		{
 			const msg = JSON.parse(eventData.data);
 			const cycleLengthTicks = Number(msg.cycleLength) * ticksPerSec;
@@ -46,6 +48,24 @@ system.initialize = function ()
 			const str = JSON.stringify(cyclesList);
 			this.save(str);
 		});
+
+		system.listenForEvent(CLIENT_ENTER_EVENT, () =>
+		{
+			const query = system.registerQuery();
+			const entities = system.getEntitiesFromQuery(query)
+				.filter( entity =>
+					entity.__identifier__ === "nychthemeron:cycle_lengths");
+
+			if (entities.length !== 0)
+			{
+				const e = entities[0];
+				const tags = system.getComponent(e, "minecraft:tag").data[0];
+				cyclesList = JSON.parse(tags);
+
+			}
+						print("current " + JSON.stringify(cyclesList));
+		});
+
 	this.registerEventData("Main:loadui", {});
 	this.registerEventData("Main:loadmenu", {});
 	this

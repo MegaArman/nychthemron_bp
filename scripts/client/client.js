@@ -1,6 +1,7 @@
 const system = client.registerSystem(0,0);
 
 const CYCLE_CHANGE_EVENT = "client:cycleChange";
+const CLIENT_ENTER_EVENT = "client:clientEnter";
 system.initialize = function()
 {
 	const scriptLoggerConfig =
@@ -15,9 +16,14 @@ system.initialize = function()
 	this.listenForEvent("Main:loadui", (event) => this.onload(event));
 	this.listenForEvent("minecraft:ui_event",
 		(eventdata) => this.onUIMessage(eventdata));
-	this.listenForEvent("minecraft:client_entered_world",
-		(eventData) => this.entered(eventData));
 
+	system.registerEventData(CLIENT_ENTER_EVENT, {});
+	this.listenForEvent("minecraft:client_entered_world",
+		(eventData) =>
+		{
+			this.entered(eventData);
+			this.broadcastEvent(CLIENT_ENTER_EVENT, eventData);
+		});
 		// const eventDataDefaults = {narf: false};
 		system.registerEventData(CYCLE_CHANGE_EVENT, {});
 };
