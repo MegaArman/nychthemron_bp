@@ -10,7 +10,6 @@ const cyclesList =
 		{"name": "sunset", "duration": 50, "value": 12250},
 		{"name": "night", "duration": 500, "value": 18000}
 	];
-const durations = [50, 600, 50, 500];
 let tickCount = 0;
 let currentCycleIndex = 0;
 
@@ -25,6 +24,14 @@ const print = (message) =>
 
 system.initialize = function ()
 {
+	const scriptLoggerConfig = system.
+	createEventData("minecraft:script_logger_config");
+	scriptLoggerConfig.data.log_errors = true;
+	scriptLoggerConfig.data.log_information = true;
+	scriptLoggerConfig.data.log_warnings = true;
+	system
+		.broadcastEvent("minecraft:script_logger_config", scriptLoggerConfig);
+	//--
 	system.executeCommand("/gamerule doDaylightCycle false", () =>
 	{
 	});
@@ -38,8 +45,10 @@ system.initialize = function ()
 			const cycleToChangeIndex =
 				cyclesList.findIndex((cycle) => cycle.name === msg.cycleID);
 			// cyclesList[cycleToChangeIndex].duration = cycleLengthSec;
-			durations[cycleToChangeIndex] = cycleLengthTicks;
-			this.save(JSON.stringify(durations));
+			cyclesList[cycleToChangeIndex].duration = cycleLengthTicks;
+			const str = JSON.stringify(cyclesList);
+			// print("str is " + str);
+			this.save(str);
 		});
 	this.registerEventData("Main:loadui", {});
 	this.registerEventData("Main:loadmenu", {});
@@ -83,11 +92,13 @@ const escapeRegExp = (string) =>
 {
   // return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 	const regex = /"/gi;
+	// print("trying to regex on " + string);
 	return string.replace(regex, '\\"');
 };
 
 system.save = function(saveData)
 {
+	// print("save data is " + saveData);
 	const escapedJSON = escapeRegExp(saveData);
 	const query = system.registerQuery();
 	const entities = system.getEntitiesFromQuery(query)
@@ -102,15 +113,24 @@ system.save = function(saveData)
 	}
 	const e = entities[0];
 	// print("ents are " + JSON.stringify(e));
-	const tags = system.getComponent(e, "minecraft:tag").data;
-	// print("tags are " + JSON.stringify(tags));
+
+	const tags = system.getComponent(e, "minecraft:tag").data[0];
+	// const deserial = tags.replace(/\\/g,"");
+	// const escaped = escapeRegExp(deserial);
+	if (tags !== undefined && tags !== "")
+	{
+	print("tags are " + tags);
+
+	const escapedTags = escapeRegExp(tags);
+	// const escapedTags = escapeRegExp(JSON.stringify(tags));
+	print("escape tags are " + escapedTags);
 		system.executeCommand(
-			`/tag @e[type=nychthemeron:cycle_lengths] remove "${tags}"`,
+			`/tag @e[type=nychthemeron:cycle_lengths] remove "${escapedTags}"`,
 			(commandResultData) =>
 			{
-				// print("tried to remove " + JSON.stringify(commandResultData));
+				print("tried to remove " + JSON.stringify(commandResultData));
 			});
-
+}
 	system.executeCommand(
 		`/tag @e[type=nychthemeron:cycle_lengths] add "${escapedJSON}"`,
 		() =>
@@ -124,12 +144,13 @@ system.save = function(saveData)
 				print("new tags " + tags);
 			});
 		});
+
 };
 
 system.update = function()
 {
 	tickCount++;
-	if (tickCount % durations[currentCycleIndex] === 0)
+	if (tickCount % cyclesList[currentCycleIndex].duration === 0)
 	{
 			currentCycleIndex++;
 			if (currentCycleIndex === cyclesList.length)
