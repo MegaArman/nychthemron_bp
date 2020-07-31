@@ -88,15 +88,16 @@ const escapeRegExp = (string) =>
 
 system.save = function(saveData)
 {
-	const hFormat = saveData.replace("[", "").replace("]", "")
-		.replace(/,/g, "-");
-	print("hFormat " + hFormat);
+	// const hFormat = saveData.replace("[", "").replace("]", "")
+	// 	.replace(/,/g, "-");
+	// print("hFormat " + hFormat);
+
+	const escapedJSON = escapeRegExp(saveData);
 	// print("will save: " + saveData);
 	const query = system.registerQuery();
 	const entities = system.getEntitiesFromQuery(query)
 		.filter( entity =>
 			entity.__identifier__ === "nychthemeron:cycle_lengths");
-
 
 	if (entities.length === 0)
 	{
@@ -109,14 +110,14 @@ system.save = function(saveData)
 	const tags = system.getComponent(e, "minecraft:tag").data;
 	print("tags are " + JSON.stringify(tags));
 		system.executeCommand(
-			`/tag @e[type=nychthemeron:cycle_lengths] remove ${tags}`,
+			`/tag @e[type=nychthemeron:cycle_lengths] remove "${tags}"`,
 			(commandResultData) =>
 			{
 				print("tried to remove " + JSON.stringify(commandResultData));
 			});
 
 	system.executeCommand(
-		`/tag @e[type=nychthemeron:cycle_lengths] add ${hFormat}`,
+		`/tag @e[type=nychthemeron:cycle_lengths] add "${escapedJSON}"`,
 		() =>
 		{
 			system
@@ -128,46 +129,6 @@ system.save = function(saveData)
 				print("new tags " + tags);
 			});
 		});
-
-
-	// //remove the prev data
-	// system
-	// .executeCommand("/tag @e[type=nychthemeron:cycle_lengths] list",
-	// (commandResultData) =>
-	// {
-	// 	const tags =
-	// 		commandResultData.data.statusMessage.split("tags: ").pop()
-	// 		.replace(/ /g,"");
-	// 	// const cleanedTags = tags.replace(/\//, ""); //remove all slash
-	// 	// const escapedTags = escapeRegExp(cleanedTags);
-	// 	print("WANT to remove " + tags);
-	//
-	// 	system.executeCommand(
-	// 		`/tag @e[type=nychthemeron:cycle_lengths] remove ${tags}`,
-	// 		(commandResultData) =>
-	// 		{
-	// 			print("tried to remove " + JSON.stringify(commandResultData));
-	//
-	// 			//add new data
-	// 			system.executeCommand(
-	// 				`/tag @e[type=nychthemeron:cycle_lengths] add ${hFormat}`,
-	// 				() =>
-	// 				{
-	// 					// print(JSON.stringify(commandResultData));
-	// 					system
-	// 					.executeCommand("/tag @e[type=nychthemeron:cycle_lengths] list",
-	// 					(commandResultData) =>
-	// 					{
-	// 						const tags =
-	// 							commandResultData.data.statusMessage.split("tags: ").pop();
-	// 						print("new tags " + tags);
-	// 					});
-	// 				});
-	// 		});
-	// });
-
-
-
 };
 
 system.update = function()
