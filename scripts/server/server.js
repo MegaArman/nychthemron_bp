@@ -3,6 +3,7 @@ let command = "minecraft:execute_command";
 
 const CYCLE_CHANGE_EVENT = "client:cycleChange";
 const CLIENT_ENTER_EVENT = "client:clientEnter";
+const UI_LOAD_CYCLE_EVENT = "server:loadCycle";
 
 const ticksPerSec = 20;
 let cyclesList =
@@ -71,6 +72,8 @@ system.initialize = function ()
 	this
 	.listenForEvent("minecraft:block_interacted_with",
 		(eventData) => this.onUsed(eventData));
+
+	system.registerEventData(UI_LOAD_CYCLE_EVENT, {});
 };
 
 system.runcommand = function (event)
@@ -153,6 +156,13 @@ system.save = function(saveData)
 
 system.update = function()
 {
+  if (tickCount === 100)
+  {
+		print("server gonna broadcast");
+		let eventData = this.createEventData("minecraft:display_chat_event");
+		system.broadcastEvent(UI_LOAD_CYCLE_EVENT, eventData);
+  }
+
 	tickCount++;
 	if (tickCount % cyclesList[currentCycleIndex].duration === 0)
 	{

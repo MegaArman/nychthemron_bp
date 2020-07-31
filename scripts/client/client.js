@@ -2,10 +2,13 @@ const system = client.registerSystem(0,0);
 
 const CYCLE_CHANGE_EVENT = "client:cycleChange";
 const CLIENT_ENTER_EVENT = "client:clientEnter";
+const UI_LOAD_CYCLE_EVENT = "server:loadCycle";
+
 system.initialize = function()
 {
 	const scriptLoggerConfig =
 		system.createEventData("minecraft:script_logger_config");
+
 	scriptLoggerConfig.data.log_errors = true;
 	scriptLoggerConfig.data.log_information = true;
 	scriptLoggerConfig.data.log_warnings = true;
@@ -26,6 +29,15 @@ system.initialize = function()
 		});
 		// const eventDataDefaults = {narf: false};
 		system.registerEventData(CYCLE_CHANGE_EVENT, {});
+
+		this.listenForEvent(UI_LOAD_CYCLE_EVENT, () =>
+		{
+			print("client heard u server");
+			let eventdata = this.createEventData("minecraft:send_ui_event");
+			eventdata.data.eventIdentifier = "loadcycles";
+			eventdata.data.data = "yum";
+			this.broadcastEvent("minecraft:send_ui_event", eventdata);
+		});
 };
 
 system.update = function()
