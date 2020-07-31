@@ -38,16 +38,12 @@ system.initialize = function ()
 	system
 	.listenForEvent(CYCLE_CHANGE_EVENT, eventData =>
 		{
-			// print("eventData received in server" + eventData.data);
-
 			const msg = JSON.parse(eventData.data);
 			const cycleLengthTicks = Number(msg.cycleLength) * ticksPerSec;
 			const cycleToChangeIndex =
 				cyclesList.findIndex((cycle) => cycle.name === msg.cycleID);
-			// cyclesList[cycleToChangeIndex].duration = cycleLengthSec;
 			cyclesList[cycleToChangeIndex].duration = cycleLengthTicks;
 			const str = JSON.stringify(cyclesList);
-			// print("str is " + str);
 			this.save(str);
 		});
 	this.registerEventData("Main:loadui", {});
@@ -88,17 +84,15 @@ system.command = function(command)
 	data.data.command = command;
 	this.broadcastEvent("minecraft:execute_command", data);
 };
+
 const escapeRegExp = (string) =>
 {
-  // return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 	const regex = /"/gi;
-	// print("trying to regex on " + string);
 	return string.replace(regex, '\\"');
 };
 
 system.save = function(saveData)
 {
-	// print("save data is " + saveData);
 	const escapedJSON = escapeRegExp(saveData);
 	const query = system.registerQuery();
 	const entities = system.getEntitiesFromQuery(query)
@@ -107,30 +101,20 @@ system.save = function(saveData)
 
 	if (entities.length === 0)
 	{
-		// print("need to create it");
 		const e = this.createEntity("entity", "nychthemeron:cycle_lengths");
 		entities.push(e);
 	}
 	const e = entities[0];
-	// print("ents are " + JSON.stringify(e));
-
 	const tags = system.getComponent(e, "minecraft:tag").data[0];
-	// const deserial = tags.replace(/\\/g,"");
-	// const escaped = escapeRegExp(deserial);
 	if (tags !== undefined && tags !== "")
 	{
-	print("tags are " + tags);
-
-	const escapedTags = escapeRegExp(tags);
-	// const escapedTags = escapeRegExp(JSON.stringify(tags));
-	print("escape tags are " + escapedTags);
-		system.executeCommand(
-			`/tag @e[type=nychthemeron:cycle_lengths] remove "${escapedTags}"`,
-			(commandResultData) =>
-			{
-				print("tried to remove " + JSON.stringify(commandResultData));
-			});
-}
+		const escapedTags = escapeRegExp(tags);
+			system.executeCommand(
+				`/tag @e[type=nychthemeron:cycle_lengths] remove "${escapedTags}"`,
+				() =>
+				{
+				});
+	}
 	system.executeCommand(
 		`/tag @e[type=nychthemeron:cycle_lengths] add "${escapedJSON}"`,
 		() =>
