@@ -47,8 +47,23 @@ system.initialize = function ()
 				cyclesList.findIndex((cycle) => cycle.name === msg.cycleID);
 			cyclesList[cycleToChangeIndex].duration = cycleLengthTicks;
 			const str = JSON.stringify(cyclesList);
+
+			let dummyEvent =
+				this.createEventData("minecraft:display_chat_event");
+			const clientCycleView = makeClientCycleView(cyclesList);
+			dummyEvent.data.message = JSON.stringify(clientCycleView);
+			system.broadcastEvent(UI_LOAD_CYCLE_EVENT, dummyEvent);
 			this.save(str);
 		});
+
+		const makeClientCycleView = (cyclesList) =>
+		{
+			const clientCycleView = cyclesList.map((cycle) =>
+			{
+				return {"duration": cycle.duration / 20, "name": cycle.name};
+			});
+			return clientCycleView;
+		};
 
 		system.listenForEvent(CLIENT_ENTER_EVENT, () =>
 		{
@@ -64,7 +79,13 @@ system.initialize = function ()
 				cyclesList = JSON.parse(tags);
 
 			}
-						print("current " + JSON.stringify(cyclesList));
+			print("current " + JSON.stringify(cyclesList));
+
+			let eventData =
+				this.createEventData("minecraft:display_chat_event");
+			const clientCycleView = makeClientCycleView(cyclesList);
+			eventData.data.message = JSON.stringify(clientCycleView);
+			system.broadcastEvent(UI_LOAD_CYCLE_EVENT, eventData);
 		});
 
 	this.registerEventData("Main:loadui", {});
@@ -158,9 +179,10 @@ system.update = function()
 {
   if (tickCount === 100)
   {
-		print("server gonna broadcast");
-		let eventData = this.createEventData("minecraft:display_chat_event");
-		system.broadcastEvent(UI_LOAD_CYCLE_EVENT, eventData);
+		// print("server gonna broadcast");
+		// let eventData = this.createEventData("minecraft:display_chat_event");
+		// eventData.data.message = "serverhi";
+		// system.broadcastEvent(UI_LOAD_CYCLE_EVENT, eventData);
   }
 
 	tickCount++;
