@@ -127,7 +127,7 @@ system.onUsed = function(eventData)
 	let item = handContainer.data[0];
 	if(player.__identifier__ === "minecraft:player")
 	{
-		if (item.item === "planetary_days:ui_item")
+		if (item.item === "minecraft:clock")
 		{
 			let event = system.createEventData("Main:loadui");
 			event.data=eventData;
