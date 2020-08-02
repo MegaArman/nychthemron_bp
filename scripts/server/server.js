@@ -4,6 +4,8 @@ let command = "minecraft:execute_command";
 const CYCLE_CHANGE_EVENT = "client:cycleChange";
 const CLIENT_ENTER_EVENT = "client:clientEnter";
 const UI_LOAD_CYCLE_EVENT = "server:loadCycle";
+const defaultCycleRanges = [[0, 12000], [12000, 13000], [13000, 23000],
+	[23000, 24000]];
 
 const ticksPerSec = 20;
 let cyclesList =
@@ -14,7 +16,7 @@ let cyclesList =
 		{"name": "night", "duration": 500, "value": 18000}
 	];
 let tickCount = 0;
-let currentCycleIndex = 0;
+let currentCycleIndex;
 
 const print = (message) =>
 {
@@ -53,6 +55,8 @@ system.initialize = function ()
 			const clientCycleView = makeClientCycleView(cyclesList);
 			dummyEvent.data.message = JSON.stringify(clientCycleView);
 			system.broadcastEvent(UI_LOAD_CYCLE_EVENT, dummyEvent);
+
+			print("server cyclesList " + JSON.stringify(cyclesList));
 			this.save(str);
 		});
 
@@ -65,8 +69,24 @@ system.initialize = function ()
 			return clientCycleView;
 		};
 
+		let firstClient = true;
 		system.listenForEvent(CLIENT_ENTER_EVENT, () =>
 		{
+			if (!firstClient)
+			{
+				return;
+			}
+			firstClient = false;
+			this.executeCommand("/time query daytime", (eventData) =>
+			{
+				const dayTime = Number(eventData.data.body.split("is ").pop());
+				print("current daytime " + dayTime);
+				currentCycleIndex = defaultCycleRanges.findIndex((range) =>
+					(dayTime >= range[0] && dayTime < range[1]));
+					print("We are on cycle " + currentCycleIndex);
+					tickCount = 0;
+			});
+
 			const query = system.registerQuery();
 			const entities = system.getEntitiesFromQuery(query)
 				.filter( entity =>
@@ -177,17 +197,15 @@ system.save = function(saveData)
 
 system.update = function()
 {
-  if (tickCount === 100)
-  {
-		// print("server gonna broadcast");
-		// let eventData = this.createEventData("minecraft:display_chat_event");
-		// eventData.data.message = "serverhi";
-		// system.broadcastEvent(UI_LOAD_CYCLE_EVENT, eventData);
-  }
-
-	tickCount++;
-	if (tickCount % cyclesList[currentCycleIndex].duration === 0)
+	// print("currentCycleIndex " + currentCycleIndex);
+	if (currentCycleIndex !== undefined &&
+			(tickCount === cyclesList[currentCycleIndex].duration))// uh will this work on first cycle?
 	{
+		print("the tickCount was " + tickCount);
+		print("the duration was " + cyclesList[currentCycleIndex].duration);
+		tickCount = 0;
+		// print("cyclesList from update " + JSON.stringify(cyclesList));
+			// print("seconds passed " + tickCount / ticksPerSec);
 			currentCycleIndex++;
 			if (currentCycleIndex === cyclesList.length)
 			{
@@ -198,4 +216,5 @@ system.update = function()
 			{
 			});
 	}
+	tickCount++;
 };
