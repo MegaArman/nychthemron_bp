@@ -192,45 +192,35 @@ system.save = function(saveData)
 				print("new tags " + tags);
 			});
 		});
-
 };
 
 system.update = function()
 {
-	// print("currentCycleIndex " + currentCycleIndex);
-
 	if (currentCycleIndex !== undefined &&
-			(tickCount === cyclesList[currentCycleIndex].duration))// uh will this work on first cycle?
+			(tickCount % cyclesList[currentCycleIndex].duration === 0))// uh will this work on first cycle?
 	{
-		print("the tickCount was " + tickCount);
-		print("the duration was " + cyclesList[currentCycleIndex].duration);
 		tickCount = 0;
-		// print("cyclesList from update " + JSON.stringify(cyclesList));
-			// print("seconds passed " + tickCount / ticksPerSec);
+		currentCycleIndex++;
+		if (currentCycleIndex === cyclesList.length)
+		{
+			currentCycleIndex = 0;
+		}
+		let seenCount = 1;
+		while (cyclesList[currentCycleIndex].duration === 0
+			&& (seenCount < cyclesList.length))
+		{
 			currentCycleIndex++;
-			if (currentCycleIndex === cyclesList.length)
+			if (currentCycleIndex >= cyclesList.length)
 			{
 				currentCycleIndex = 0;
 			}
-			let seenCount = 1;
-			while (cyclesList[currentCycleIndex].duration === 0
-				&& (seenCount < cyclesList.length))
-			{
-				currentCycleIndex++;
-				if (currentCycleIndex >= cyclesList.length)
-				{
-					currentCycleIndex = 0;
-				}
-				seenCount++;
+			seenCount++;
+		}
 
-			}
-
-			//
-			const cycleValue = cyclesList[currentCycleIndex].value;
-			this.executeCommand(`/time set ${cycleValue}`, () =>
-			{
-			});
+		const cycleValue = cyclesList[currentCycleIndex].value;
+		this.executeCommand(`/time set ${cycleValue}`, () =>
+		{
+		});
 	}
 	tickCount++;
-
 };

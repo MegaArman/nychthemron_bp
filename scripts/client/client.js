@@ -3,7 +3,7 @@ const system = client.registerSystem(0,0);
 const CYCLE_CHANGE_EVENT = "client:cycleChange";
 const CLIENT_ENTER_EVENT = "client:clientEnter";
 const UI_LOAD_CYCLE_EVENT = "server:loadCycle";
-let sunriseVal = "";
+let cyclesClientView = "";
 system.initialize = function()
 {
 	const scriptLoggerConfig =
@@ -27,46 +27,17 @@ system.initialize = function()
 			this.entered(eventData);
 			this.broadcastEvent(CLIENT_ENTER_EVENT, eventData);
 		});
-		// const eventDataDefaults = {narf: false};
 		system.registerEventData(CYCLE_CHANGE_EVENT, {});
 
 		this.listenForEvent(UI_LOAD_CYCLE_EVENT, (serverData) =>
 		{
-			// print("client heard u server");
-			// let eventdata = this.createEventData("minecraft:send_ui_event");
-			// eventdata.data.eventIdentifier = "loadcycles";
-			// print("server data " + JSON.stringify(serverData));
-			// sunriseVal = serverData.data.message;
-			//
-			// eventdata.data.data = sunriseVal;
-			// this.broadcastEvent("minecraft:send_ui_event", eventdata);
-			sunriseVal = serverData.data.message;
+			cyclesClientView = serverData.data.message;
 
 		});
-
-		// print("client heard u server");
-		// let eventdata = this.createEventData("minecraft:send_ui_event");
-		// eventdata.data.eventIdentifier = "loadcycles";
-		// eventdata.data.data = sunriseVal;
-		// this.broadcastEvent("minecraft:send_ui_event", eventdata);};
 };
 
 system.update = function()
 {
-		// if (sunriseVal !== "" && sunriseVal !== undefined)
-		// {
-		// 	let eventdata = this.createEventData("minecraft:send_ui_event");
-		// 	eventdata.data.eventIdentifier = "loadcycles";
-		//
-		// 	// const cyclesList = JSON.parse(sunriseVal);
-		// 	const cyclesList = sunriseVal;
-		//
-		// 	// print(cyclesList[0].duration);
-		// 	eventdata.data.data = cyclesList;
-		// 	// print(sunriseVal);
-		// 	// eventdata.data.data = sunriseVal;
-		// 	this.broadcastEvent("minecraft:send_ui_event", eventdata);
-		// }
 };
 
 const print = (message) =>
@@ -82,18 +53,7 @@ system.entered = function (eventData)
 {
 	let loadEventData = this.createEventData("minecraft:load_ui");
 	loadEventData.data.path = "main.html";
-	// loadEventData.data.options.is_showing_menu = false;
-	// loadEventData.data.options.absorbs_input = true;
-	// loadEventData.data.options.always_accepts_input  = true;
-	// loadEventData.data.options.render_game_behind = false;
-	// loadEventData.data.options.should_steal_mouse = true;
-	// loadEventData.data.options.force_render_below = true;
 	system.broadcastEvent("minecraft:load_ui", loadEventData);
-
-	// clientplayer = eventData.data.player
-	// let event = this.createEventData("Main:addplayer")
-	// event.data = clientplayer
-	// this.broadcastEvent("Main:addplayer", event)
 };
 
 system.onload = function (event)
@@ -107,7 +67,6 @@ system.onUIMessage = function (eventData)
 {
 	const eventDataStr = eventData.data;
 
-	// print(eventData);
   if(eventDataStr === "closepressed")
 	{
 		print("will close");
@@ -116,30 +75,18 @@ system.onUIMessage = function (eventData)
 	else if (eventDataStr === "ui_loaded")
 	{
 		print("we know");
-		if (sunriseVal !== "" && sunriseVal !== undefined)
+		if (cyclesClientView !== "" && cyclesClientView !== undefined)
 		{
 			let eventdata = this.createEventData("minecraft:send_ui_event");
 			eventdata.data.eventIdentifier = "loadcycles";
-
-			// const cyclesList = JSON.parse(sunriseVal);
-			const cyclesList = sunriseVal;
-
-			// print(cyclesList[0].duration);
+			const cyclesList = cyclesClientView;
 			eventdata.data.data = cyclesList;
-			// print(sunriseVal);
-			// eventdata.data.data = sunriseVal;
 			print("send client: " + cyclesList);
 			this.broadcastEvent("minecraft:send_ui_event", eventdata);
 		}
 	}
 	else
 	{
-		// let pinkyEventData = clientSystem.createEventData("example:pinky");
-		// pinkyEventData.data.narf = true;
-		//
-		// clientSystem.broadcastEvent("example:pinky", pinkyEventData);
-
-		// print("gonna broadcast to server" + eventData);
 		system.broadcastEvent(CYCLE_CHANGE_EVENT, eventData);
 	}
 };
