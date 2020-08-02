@@ -207,7 +207,7 @@ system.update = function()
 		}
 		let seenCount = 1;
 		while (cyclesList[currentCycleIndex].duration === 0
-			&& (seenCount < cyclesList.length))
+			&& (seenCount <= cyclesList.length))
 		{
 			currentCycleIndex++;
 			if (currentCycleIndex >= cyclesList.length)
