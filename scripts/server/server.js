@@ -198,6 +198,7 @@ system.save = function(saveData)
 system.update = function()
 {
 	// print("currentCycleIndex " + currentCycleIndex);
+
 	if (currentCycleIndex !== undefined &&
 			(tickCount === cyclesList[currentCycleIndex].duration))// uh will this work on first cycle?
 	{
@@ -211,10 +212,25 @@ system.update = function()
 			{
 				currentCycleIndex = 0;
 			}
+			let seenCount = 1;
+			while (cyclesList[currentCycleIndex].duration === 0
+				&& (seenCount < cyclesList.length))
+			{
+				currentCycleIndex++;
+				if (currentCycleIndex >= cyclesList.length)
+				{
+					currentCycleIndex = 0;
+				}
+				seenCount++;
+
+			}
+
+			//
 			const cycleValue = cyclesList[currentCycleIndex].value;
 			this.executeCommand(`/time set ${cycleValue}`, () =>
 			{
 			});
 	}
 	tickCount++;
+
 };
