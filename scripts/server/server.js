@@ -10,10 +10,10 @@ const defaultCycleRanges = [[0, 12000], [12000, 13000], [13000, 23000],
 const ticksPerSec = 20;
 let cyclesList =
 	[
-		{"name": "sunrise", "duration": 50, "value": "sunrise"},
-		{"name": "day", "duration": 600, "value": "day"},
-		{"name": "sunset", "duration": 50, "value": 12250},
-		{"name": "night", "duration": 500, "value": 18000}
+		{"name": "sunrise", "duration": 600, "value": "sunrise"},
+		{"name": "day", "duration": 50, "value": "day"},
+		{"name": "sunset", "duration": 500, "value": 12250},
+		{"name": "night", "duration": 50, "value": 18000}
 	];
 let tickCount = 0;
 let currentCycleIndex;
@@ -44,7 +44,7 @@ system.initialize = function ()
 	.listenForEvent(CYCLE_CHANGE_EVENT, (eventData) =>
 		{
 			const msg = JSON.parse(eventData.data);
-			const cycleLengthTicks = Number(msg.cycleLength) * ticksPerSec;
+			const cycleLengthTicks = Number(msg.cycleLength);
 			const cycleToChangeIndex =
 				cyclesList.findIndex((cycle) => cycle.name === msg.cycleID);
 			cyclesList[cycleToChangeIndex].duration = cycleLengthTicks;
@@ -62,7 +62,7 @@ system.initialize = function ()
 		{
 			const clientCycleView = cyclesList.map((cycle) =>
 			{
-				return {"duration": cycle.duration / 20, "name": cycle.name};
+				return {"duration": cycle.duration, "name": cycle.name};
 			});
 			return clientCycleView;
 		};
@@ -190,7 +190,7 @@ system.save = function(saveData)
 system.update = function()
 {
 	if (currentCycleIndex !== undefined &&
-			((tickCount % cyclesList[currentCycleIndex].duration === 0) ||
+			((tickCount % (cyclesList[currentCycleIndex].duration * ticksPerSec) === 0) ||
 				cyclesList[currentCycleIndex].duration === 0))// uh will this work on first cycle?
 	{
 		tickCount = 0;
@@ -201,7 +201,7 @@ system.update = function()
 		}
 		let seenCount = 1;
 
-		//find the nonzero cycle
+		//prevent frame loss
 		while (cyclesList[currentCycleIndex].duration === 0
 			&& (seenCount <= cyclesList.length))
 		{
