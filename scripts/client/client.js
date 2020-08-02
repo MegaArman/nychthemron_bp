@@ -69,19 +69,16 @@ system.onUIMessage = function (eventData)
 
   if(eventDataStr === "closepressed")
 	{
-		print("will close");
 		this.close();
 	}
 	else if (eventDataStr === "ui_loaded")
 	{
-		print("we know");
 		if (cyclesClientView !== "" && cyclesClientView !== undefined)
 		{
 			let eventdata = this.createEventData("minecraft:send_ui_event");
 			eventdata.data.eventIdentifier = "loadcycles";
 			const cyclesList = cyclesClientView;
 			eventdata.data.data = cyclesList;
-			print("send client: " + cyclesList);
 			this.broadcastEvent("minecraft:send_ui_event", eventdata);
 		}
 	}

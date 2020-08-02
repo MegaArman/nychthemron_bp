@@ -55,8 +55,6 @@ system.initialize = function ()
 			const clientCycleView = makeClientCycleView(cyclesList);
 			dummyEvent.data.message = JSON.stringify(clientCycleView);
 			system.broadcastEvent(UI_LOAD_CYCLE_EVENT, dummyEvent);
-
-			print("server cyclesList " + JSON.stringify(cyclesList));
 			this.save(str);
 		});
 
@@ -80,11 +78,9 @@ system.initialize = function ()
 			this.executeCommand("/time query daytime", (eventData) =>
 			{
 				const dayTime = Number(eventData.data.body.split("is ").pop());
-				print("current daytime " + dayTime);
 				currentCycleIndex = defaultCycleRanges.findIndex((range) =>
 					(dayTime >= range[0] && dayTime < range[1]));
-					print("We are on cycle " + currentCycleIndex);
-					tickCount = 0;
+				tickCount = 0;
 			});
 
 			const query = system.registerQuery();
@@ -99,8 +95,6 @@ system.initialize = function ()
 				cyclesList = JSON.parse(tags);
 
 			}
-			print("current " + JSON.stringify(cyclesList));
-
 			let eventData =
 				this.createEventData("minecraft:display_chat_event");
 			const clientCycleView = makeClientCycleView(cyclesList);
@@ -189,7 +183,6 @@ system.save = function(saveData)
 			{
 				const tags =
 					commandResultData.data.statusMessage.split("tags: ").pop();
-				print("new tags " + tags);
 			});
 		});
 };
