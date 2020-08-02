@@ -190,7 +190,8 @@ system.save = function(saveData)
 system.update = function()
 {
 	if (currentCycleIndex !== undefined &&
-			(tickCount % cyclesList[currentCycleIndex].duration === 0))// uh will this work on first cycle?
+			((tickCount % cyclesList[currentCycleIndex].duration === 0) ||
+				cyclesList[currentCycleIndex].duration === 0))// uh will this work on first cycle?
 	{
 		tickCount = 0;
 		currentCycleIndex++;
@@ -199,6 +200,8 @@ system.update = function()
 			currentCycleIndex = 0;
 		}
 		let seenCount = 1;
+
+		//find the nonzero cycle
 		while (cyclesList[currentCycleIndex].duration === 0
 			&& (seenCount <= cyclesList.length))
 		{
